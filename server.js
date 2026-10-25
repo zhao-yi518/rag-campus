@@ -26,7 +26,11 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 function hashPassword(password, salt) {
   return crypto.scryptSync(String(password), salt, 32).toString('hex');
 }
-/** 归一化输入：全角→半角、去首尾空格（防止手机输入法导致的登录失败） */
+/**
+ * 归一化输入：全角→半角、去首尾空格。
+ * 解决的真实问题：手机输入法打出的"１２３"（全角）与"123"（半角）
+ * 在数据库里是不同字符串，曾导致多设备登录失败；登录/导入统一走此函数。
+ */
 function normalizeInput(s) {
   return String(s || '')
     .replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
@@ -61,6 +65,11 @@ function seedDeveloper() {
 }
 
 // --- 请求身份解析 ---
+/**
+ * getUser：从请求头 X-Auth-Token 解析当前用户。
+ * 会话采用服务端 Token 表方案（auth_tokens），登出即删行、可主动踢下线，
+ * 相比 JWT 更适合小型多角色系统。
+ */
 function getUser(req) {
   const token = req.headers['x-auth-token'];
   if (!token) return null;
@@ -77,6 +86,7 @@ function requireAuth(req, res, next) {
   req.user = user;
   next();
 }
+/** 鉴权中间件：requireRole('teacher','admin') 即可声明"哪些身份能用此接口" */
 function requireRole(...roles) {
   return (req, res, next) => {
     const user = getUser(req);
@@ -277,7 +287,10 @@ CREATE INDEX IF NOT EXISTS idx_kb_cat ON knowledge(category);
 CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conv_id);
 `);
 
-/* 首次启动：把 knowledge.txt 导入数据库 */
+/**
+ * 首次启动种子数据：把 knowledge.txt（91 条校园信息）导入知识库，
+ * 已有数据则跳过，保证重启不重复导入。
+ */
 function seedFromTxt() {
   const count = db.prepare('SELECT COUNT(*) AS c FROM knowledge').get().c;
   if (count > 0) return;
@@ -322,6 +335,7 @@ const CATEGORY_RULES = [
   ['竞赛科研', ['竞赛', '挑战杯', '互联网+', '大创', '数学建模', '科研']],
 ];
 
+/** 关键词规则自动分类：按命中词数打分（长词权重×2），兜底归入"其他" */
 function guessCategory(text) {
   let best = '其他';
   let bestHit = 0;
@@ -577,6 +591,11 @@ async function callLLMStream(messages, onDelta) {
   return full.trim() || '模型返回为空';
 }
 
+/**
+ * 系统提示词（RAG 约束核心）：
+ * 强制模型"只依据参考资料回答 + 标注依据编号"，从生成层杜绝幻觉；
+ * 未命中条目时引导模型拒答，前端据此触发 AI 兜底并打上 🤖 标签。
+ */
 const SYSTEM_PROMPT = `你是「校园学习知识库助手」，服务山东华宇工学院的学生。
 规则：
 1. 只能依据【参考资料】回答，禁止编造资料中没有的信息。
@@ -593,6 +612,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
+/** 多格式文本抽取：PPTX(解压读XML)/DOCX/PDF/Excel/CSV/TXT 统一转纯文本 */
 async function extractText(file) {
   const name = file.originalname.toLowerCase();
   if (name.endsWith('.pdf')) {
@@ -636,6 +656,10 @@ async function extractText(file) {
 }
 
 /** 把长文本切成知识条目：优先按行，其次按句号切分，合并过短的行 */
+/**
+ * 长文本切分：优先按行切，单行过长再按句号二次切分，
+ * 每条控制在 400 字内、过滤 <4 字的碎片——切分质量直接影响检索召回率。
+ */
 function splitIntoChunks(text) {
   const cleaned = text
     .replace(/\r\n/g, '\n')

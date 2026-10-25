@@ -450,6 +450,18 @@ select{
   padding:11px 14px; line-height:1.9; border-left:3px solid #e59a6e;
 }
 
+/* 效果评测 */
+.eval-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+.eval-cell{
+  background:#f7fbfa; border:1px solid #e3f0ee; border-radius:11px;
+  padding:14px; text-align:center;
+}
+.eval-cell b{display:block; font-size:24px; font-weight:750; color:var(--brand); font-variant-numeric:tabular-nums;}
+.eval-cell b small{font-size:12px; font-weight:600;}
+.eval-cell span{font-size:11.5px; color:var(--sub);}
+.eval-foot{font-size:11.5px; color:#9aa7b8; margin-top:10px;}
+@media (max-width:900px){ .eval-grid{grid-template-columns:1fr 1fr;} }
+
 /* ============ 弹窗 ============ */
 .modal-mask{
   position:fixed; inset:0; background:rgba(15,26,42,.42); backdrop-filter:blur(3px);
@@ -712,6 +724,17 @@ select{
 
         <div class="panel">
           <div class="panel-h">
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>系统效果评测</h3>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span class="sub">30 题基准测试（15 库内 + 15 库外）</span>
+              <button class="btn btn-ghost" id="evalBtn">运行评测</button>
+            </div>
+          </div>
+          <div id="evalResult"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
             <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>近 14 天提问趋势</h3>
             <span class="sub"><span class="lg-dot" style="background:var(--primary)"></span>总提问　<span class="lg-dot" style="background:#22b07d"></span>命中</span>
           </div>
@@ -945,6 +968,10 @@ function canSeeView(v){
   return (ROLE_VIEWS[role] || ROLE_VIEWS.guest).includes(v);
 }
 
+/**
+ * 登录弹窗：action 为登录成功后的回调（如"继续发送刚才的问题"）。
+ * 未登录点击发送/留言时调用，登录完成后自动接续之前的操作。
+ */
 function openLogin(action){
   pendingAction = action || null;
   $('#loginErr').style.display = 'none';
@@ -990,6 +1017,7 @@ $('#loginOk').onclick = async ()=>{
   }
 };
 
+/** 退出登录：调后端删除会话 Token，清空本地缓存并回到游客视图 */
 async function doLogout(){
   if(!authToken) { openLogin(); return; }
   if(!confirm('确定退出登录吗？')) return;
@@ -1003,6 +1031,10 @@ async function doLogout(){
   toast('已退出登录');
 }
 
+/**
+ * 按角色应用界面：顶栏身份卡、导航项显隐（ROLE_VIEWS 矩阵）、
+ * 知识库/账号管理等入口只对有权限的角色渲染——前端隐藏 + 后端 requireRole 双重校验。
+ */
 function applyRoleUI(){
   // 顶栏身份卡
   if(currentUser){
@@ -1033,6 +1065,7 @@ function applyRoleUI(){
   if(!canSeeView(CURRENT_VIEW)) switchView('chat');
 }
 
+/** 游客守卫：游客可以看问答界面但不能发送，输入框置灰并提示登录 */
 function applyGuestGuard(){
   const q = $('#qInput');
   const btn = $('#sendBtn');
@@ -1051,6 +1084,10 @@ $('#userChip').onclick = doLogout;
 
 /**
  * 带鉴权的请求：401 时弹出登录，登录成功后自动重试原操作
+ */
+/**
+ * 统一鉴权请求封装：自动带 X-Auth-Token；
+ * 遇 401（会话过期）时弹登录框，登录成功后用 retryAction 自动重放原请求。
  */
 async function adminFetch(url, opts = {}, retryAction = null){
   opts.headers = Object.assign({}, opts.headers || {}, { 'X-Auth-Token': authToken });
@@ -1084,6 +1121,7 @@ const VIEW_META = {
   dash:  { title:'数据看板', tag:'运营视角' },
   users: { title:'账号管理', tag:'权限中心' },
 };
+/** 视图切换：先过 canSeeView 权限检查，游客点受限导航会被引导登录 */
 function switchView(v){
   if(!canSeeView(v)){ openLogin(); return; }
   CURRENT_VIEW = v;
@@ -1093,7 +1131,7 @@ function switchView(v){
   $('#newChatBtn').style.display = v==='chat' ? 'inline-flex' : 'none';
   $('#sidebar').classList.remove('open');
   if(v==='kb') loadKb();
-  if(v==='dash') loadDash();
+  if(v==='dash'){ loadDash(); loadEvalLast(); }
   if(v==='board') loadBoard();
   if(v==='users') loadUsers();
   if(v==='materials') loadMaterials();
@@ -1143,6 +1181,7 @@ qInput.addEventListener('keydown', (e)=>{
 });
 $('#sendBtn').onclick = send;
 
+/** XSS 防护：所有用户输入/知识条目渲染前必须过 esc()，防止注入脚本 */
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function addUserMsg(text){
@@ -1164,6 +1203,7 @@ function addBotMsg(){
   return el;
 }
 
+/** 打字机效果：流式回答按字符逐个显示，营造"正在思考"的实时感 */
 function typeWrite(el, text, done){
   el.innerHTML = '';
   let i = 0;
@@ -1180,6 +1220,15 @@ function typeWrite(el, text, done){
   }, 14);
 }
 
+/**
+ * 发送提问（核心流程）：
+ * 1) 未登录则先弹登录框，登录后自动续发；
+ * 2) fetch 读取 SSE 流，按 meta/delta/done 三种事件增量渲染；
+ *    - meta：来源标注（mode='kb' 展示 📚 校内资料明细，mode='ai' 展示 🤖 徽章）
+ *    - delta：追加一段回答文本（打字机效果）
+ *    - done：结束，挂载点赞/点踩栏
+ * 3) 收到 401（会话过期）时自动重登并重试一次。
+ */
 async function send(){
   const q = qInput.value.trim();
   if(!q) return;
@@ -1271,6 +1320,12 @@ async function send(){
   }
 }
 
+/**
+ * 双来源溯源渲染：
+ * - mode='ai'：显示"🤖 AI 生成"徽章并提示与老师核实；
+ * - mode='kb'：显示 📚 校内资料徽章，逐条列出条目编号/标题/上传教师/日期/文件名，
+ *   学生可据此核对原始出处。
+ */
 function renderSources(botEl, srcEl, sources, mode){
   if(mode === 'ai'){
     srcEl.style.display = 'flex';
@@ -1326,6 +1381,7 @@ function renderFb(botEl, messageId){
 }
 
 /* ---------- 会话历史 ---------- */
+/** 会话侧边栏：加载当前用户的历史对话列表，点击可回看 */
 async function loadConvBar(){
   try{
     const list = await (await fetch('/api/conversations')).json();
@@ -1341,6 +1397,7 @@ async function loadConvBar(){
   }catch(e){}
 }
 
+/** 恢复历史对话：切换 CONV_ID 并拉取该会话全部消息重新渲染 */
 async function loadConv(id){
   CONV_ID = id;
   localStorage.setItem('convId', id);
@@ -1386,6 +1443,7 @@ async function loadCats(){
   }catch(e){}
 }
 
+/** 知识库管理：分页加载 + 分类过滤 + 关键词搜索（教师/管理员/开发者可见） */
 async function loadKb(){
   await loadCats();
   const q = $('#kbSearch').value.trim();
@@ -1517,6 +1575,10 @@ dz.addEventListener('drop', e=>{
   if(f) uploadFile(f);
 });
 
+/**
+ * 教师上传资料：校验扩展名 → FormData 上传 → 后端抽取文本切分入库，
+ * 成功后刷新知识库与学习资料列表。
+ */
 async function uploadFile(file){
   const ok = /\.(pdf|docx|txt|md|csv)$/i.test(file.name);
   if(!ok){ toast('仅支持 PDF / docx / txt / md / csv', 'err'); return; }
@@ -1548,7 +1610,53 @@ async function uploadFile(file){
   }
 }
 
+/* ---------- 效果评测 ---------- */
+/** 加载最近一次效果评测结果（30 题基准），供数据看板展示 */
+async function loadEvalLast(){
+  try{
+    const d = await (await fetch('/api/eval/last', {headers:{'X-Auth-Token': authToken}})).json();
+    if(d.summary) renderEval(d.summary, null, true);
+  }catch(e){}
+}
+function renderEval(s, details, isHistory){
+  $('#evalResult').innerHTML = `
+    <div class="eval-grid">
+      <div class="eval-cell"><b>${s.top1Rate}%</b><span>Top1 命中率</span></div>
+      <div class="eval-cell"><b>${s.top3Rate}%</b><span>Top3 召回率</span></div>
+      <div class="eval-cell"><b>${s.rejectRate}%</b><span>库外拒识率</span></div>
+      <div class="eval-cell"><b>${s.avgLatency}<small>ms</small></b><span>平均检索耗时</span></div>
+    </div>
+    <div class="eval-foot">${isHistory ? '上次评测：' : '本次评测：'}${s.runAt} · 共 ${s.total} 题</div>
+    ${details ? renderEvalDetails(details) : ''}`;
+}
+function renderEvalDetails(d){
+  const inFail = d.inKB.filter(x=>!x.in3);
+  const outFail = d.outKB.filter(x=>!x.rejected);
+  let html = '';
+  if(inFail.length){
+    html += `<div class="fail-box"><b>库内未召回 ${inFail.length} 题：</b><br>` +
+      inFail.map(x=>`· 「${esc(x.q)}」期望 #${x.expectId}，实际 ${x.top1?('#'+x.top1):'无'}（Top3 也未命中）`).join('<br>') + '</div>';
+  }
+  if(outFail.length){
+    html += `<div class="fail-box" style="margin-top:8px"><b>库外误召回 ${outFail.length} 题：</b><br>` +
+      outFail.map(x=>`· 「${esc(x.q)}」误命中 ${esc(x.wrongHits.join('、'))}`).join('<br>') + '</div>';
+  }
+  if(!html) html = '<div class="fail-box" style="border-left-color:#22b07d; color:#0b7a5c; background:#f0faf7">全部用例通过，检索表现完美 🎉</div>';
+  return html;
+}
+$('#evalBtn').onclick = async ()=>{
+  const btn = $('#evalBtn');
+  btn.disabled = true; btn.textContent = '评测中…';
+  try{
+    const r = await adminFetch('/api/eval/run', {method:'POST'});
+    const d = await r.json();
+    if(d.ok){ renderEval(d.summary, d.details, false); toast('评测完成', 'ok'); }
+  }catch(e){}
+  btn.disabled = false; btn.textContent = '运行评测';
+};
+
 /* ---------- 看板 ---------- */
+/** 数据看板：拉取提问量/命中率/热门分类/14 天趋势并渲染图表 */
 async function loadDash(){
   const r = await fetch('/api/analytics', {headers:{'X-Auth-Token': authToken}});
   if(r.status === 401){ openLogin(); return; }
@@ -1603,6 +1711,7 @@ async function loadDash(){
 }
 
 /* ---------- 留言板 ---------- */
+/** 留言板：游客只读，登录用户可留言，教师/开发者可回复 */
 async function loadBoard(){
   try{
     const r = await fetch('/api/board', {headers:{'X-Auth-Token': authToken}});
@@ -1772,6 +1881,7 @@ $('#importTplBtn').onclick = ()=>{
   toast('模板已下载，用 Excel 填好后另存为 xlsx 或直接上传', 'ok');
 };
 
+/** 账号管理面板：按角色加载用户列表（开发者可管学生+教师，教师仅学生） */
 async function loadUsers(){
   renderRoleOptions();
   try{
@@ -1838,6 +1948,7 @@ $('#pwSubmit').onclick = async ()=>{
 
 /* ---------- 学习资料 ---------- */
 let matTimer = null;
+/** 学习资料页：拉取带附件的知识条目（hasFile=1），支持关键词搜索（300ms 防抖） */
 function loadMaterials(q){
   q = (q === undefined) ? ($('#matSearch') ? $('#matSearch').value.trim() : '') : q;
   const url = '/api/knowledge?hasFile=1&size=50' + (q ? '&q=' + encodeURIComponent(q) : '');
