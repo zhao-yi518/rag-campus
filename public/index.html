@@ -168,6 +168,26 @@ input,textarea,select{font-family:inherit; font-size:inherit; color:inherit;}
 }
 .src b{color:var(--brand); font-weight:650; margin-right:5px;}
 .src .cat{font-size:11px; color:var(--sub); background:#eef1f6; padding:1px 6px; border-radius:4px; margin-left:6px;}
+/* 引用编号可点击溯源 */
+.cite{
+  display:inline-block; cursor:pointer; user-select:none;
+  font-size:11.5px; font-weight:700; color:var(--brand);
+  background:rgba(14,165,164,.1); border:1px solid rgba(14,165,164,.35);
+  border-radius:4px; padding:0 5px; margin:0 1px; vertical-align:1px;
+  transition:.15s; line-height:1.5;
+}
+.cite:hover{background:var(--brand); color:#fff;}
+.sources-list{display:flex; flex-direction:column; gap:7px;}
+.sources-list.collapsed{display:none;}
+.sources-title{cursor:pointer;}
+.src.hl{
+  animation:srcFlash 1.6s ease;
+  border-left-color:#f59e0b; background:#fffbeb; border-color:#fde68a;
+}
+@keyframes srcFlash{
+  0%{transform:scale(1.015); box-shadow:0 0 0 4px rgba(245,158,11,.25);}
+  100%{transform:scale(1); box-shadow:none;}
+}
 
 /* 输入区 */
 .composer-wrap{
@@ -1258,7 +1278,10 @@ async function send(){
     const ctype = res.headers.get('content-type') || '';
     if(ctype.includes('application/json')){
       const data = await res.json();
-      typeWrite(txtEl, data.answer || '（无回答）', ()=>renderSources(botEl, srcEl, data.sources, data.mode));
+      typeWrite(txtEl, data.answer || '（无回答）', ()=>{
+        renderAnswerWithCites(txtEl, data.answer || '');
+        renderSources(botEl, srcEl, data.sources, data.mode);
+      });
       loadStats();
       return;
     }
@@ -1301,6 +1324,7 @@ async function send(){
         }else if(evt.type === 'done'){
           const cur = txtEl.querySelector('.cursor');
           if(cur) cur.remove();
+          renderAnswerWithCites(txtEl, full);
           renderSources(botEl, srcEl, evt.sources || gotSources, evt.mode);
           if(evt.answerId) renderFb(botEl, evt.answerId);
           botEl.scrollIntoView({behavior:'smooth', block:'end'});
@@ -1326,6 +1350,32 @@ async function send(){
  * - mode='kb'：显示 📚 校内资料徽章，逐条列出条目编号/标题/上传教师/日期/文件名，
  *   学生可据此核对原始出处。
  */
+/**
+ * 引用编号可点击溯源（精化功能）：
+ * 把回答中的「依据 #12」「#12」「[12]」替换为可点击徽章，
+ * 点击后自动展开来源列表、滚动定位并高亮对应知识条目原文。
+ * 全程用 DOM API 构建（createTextNode），不拼 HTML 字符串，杜绝 XSS。
+ */
+function renderAnswerWithCites(txtEl, text){
+  txtEl.innerHTML = '';
+  const re = /(依据\s*)?#(\d+)|\[(\d+)\]/g;
+  let last = 0, m;
+  while((m = re.exec(text))){
+    const before = text.slice(last, m.index);
+    if(before) txtEl.appendChild(document.createTextNode(before));
+    const id = m[2] || m[3];
+    const badge = document.createElement('span');
+    badge.className = 'cite';
+    badge.dataset.id = id;
+    badge.textContent = (m[1] ? '依据 ' : '') + '#' + id;
+    badge.title = '点击查看该依据的原文';
+    txtEl.appendChild(badge);
+    last = m.index + m[0].length;
+  }
+  const tail = text.slice(last);
+  if(tail) txtEl.appendChild(document.createTextNode(tail));
+}
+
 function renderSources(botEl, srcEl, sources, mode){
   if(mode === 'ai'){
     srcEl.style.display = 'flex';
@@ -1335,14 +1385,36 @@ function renderSources(botEl, srcEl, sources, mode){
   }
   if(sources && sources.length){
     srcEl.style.display = 'flex';
-    srcEl.innerHTML = `<div class="sources-title">
+    srcEl.innerHTML = `<div class="sources-title" title="点击展开/收起来源明细">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      📚 依据老师上传的校内资料 · 引用 ${sources.length} 条</div>` +
+      📚 依据老师上传的校内资料 · 引用 ${sources.length} 条 · 点击回答里的编号可定位原文</div><div class="sources-list collapsed">` +
       sources.map(s=>{
         const fname = (s.source||'').replace('上传：','');
         const meta = [s.uploader, s.time ? (s.time||'').slice(0,10) : '', fname].filter(Boolean).join(' · ');
-        return `<div class="src"><b>#${s.id}</b>${esc(s.text)}${meta?`<span class="src-meta">来源：${esc(meta)}</span>`:''}${s.category?`<span class="cat">${s.category}</span>`:''}</div>`;
-      }).join('');
+        return `<div class="src" data-sid="${s.id}"><b>#${s.id}</b>${esc(s.text)}${meta?`<span class="src-meta">来源：${esc(meta)}</span>`:''}${s.category?`<span class="cat">${s.category}</span>`:''}</div>`;
+      }).join('') + `</div>`;
+
+    // 标题点击：展开/收起全部来源明细
+    srcEl.querySelector('.sources-title').onclick = ()=>{
+      srcEl.querySelector('.sources-list').classList.toggle('collapsed');
+    };
+
+    // 引用编号点击：展开列表 → 滚动定位 → 高亮闪烁对应条目
+    botEl.querySelectorAll('.cite').forEach(c=>{
+      c.onclick = ()=>{
+        const list = srcEl.querySelector('.sources-list');
+        list.classList.remove('collapsed');
+        const item = list.querySelector(`.src[data-sid="${c.dataset.id}"]`);
+        if(item){
+          item.scrollIntoView({behavior:'smooth', block:'center'});
+          item.classList.remove('hl');
+          void item.offsetWidth;           // 重置动画
+          item.classList.add('hl');
+        }else{
+          toast('该编号未包含在本回答的引用明细中');
+        }
+      };
+    });
     botEl.scrollIntoView({behavior:'smooth', block:'end'});
   }
 }
