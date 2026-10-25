@@ -327,6 +327,129 @@ select{
 .miss-item .t{flex:1; color:#3d4a5e;}
 .miss-item .time{font-size:11.5px; color:#9aa7b8; white-space:nowrap;}
 
+/* 趋势图 */
+.lg-dot{display:inline-block; width:8px; height:8px; border-radius:2px; margin:0 3px 0 6px; vertical-align:middle;}
+.trend{display:flex; align-items:flex-end; gap:8px; height:150px; padding:6px 2px 0;}
+.trend .col{flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0;}
+.trend .bars{display:flex; align-items:flex-end; gap:3px; height:110px; width:100%; justify-content:center;}
+.trend .b{width:9px; border-radius:4px 4px 0 0; transition:height .5s cubic-bezier(.2,.8,.3,1); min-height:3px;}
+.trend .b.total{background:linear-gradient(180deg,var(--brand),var(--brand-2));}
+.trend .b.hit{background:#35c08e;}
+.trend .num{font-size:10.5px; color:var(--sub); font-variant-numeric:tabular-nums;}
+.trend .day{font-size:10.5px; color:#9aa7b8; white-space:nowrap;}
+.trend-empty{padding:40px 0; text-align:center; color:var(--sub); font-size:13px;}
+
+/* 回答反馈 */
+.fb-bar{display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:9px; border-top:1px dashed #edf1f6;}
+.fb-q{font-size:11.5px; color:#9aa7b8;}
+.fb-btn{
+  width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:#fff;
+  display:grid; place-items:center; cursor:pointer; color:#8b98aa; transition:.15s;
+}
+.fb-btn:hover{border-color:var(--brand); color:var(--brand); transform:translateY(-1px);}
+.fb-btn.on{background:var(--brand); border-color:var(--brand); color:#fff;}
+
+/* 身份卡 & 角色体系 */
+.user-chip{
+  display:flex; align-items:center; gap:8px; padding:6px 12px 6px 6px; border-radius:99px;
+  border:1px solid var(--line); background:var(--card); cursor:pointer; transition:.15s;
+}
+.user-chip:hover{border-color:var(--brand); box-shadow:0 0 0 3px rgba(14,165,164,.08);}
+.uc-avatar{
+  width:26px; height:26px; border-radius:50%; display:grid; place-items:center;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff;
+  font-size:12.5px; font-weight:700;
+}
+.user-chip #ucName{font-size:12.5px; font-weight:650; color:var(--txt); max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.uc-role{font-size:10.5px; color:var(--sub); background:#f1f5f9; border-radius:6px; padding:2px 7px;}
+.nav-item.auth-hidden{display:none;}
+.role-badge{display:inline-block; font-size:11px; padding:3px 9px; border-radius:7px; font-weight:600;}
+.rb-student{background:#e8f4fd; color:#2181c7;}
+.rb-teacher{background:#f0edfd; color:#6d4fd0;}
+.rb-admin{background:#fdf3e3; color:#c07f18;}
+.rb-developer{background:#e5f7f2; color:#0e9c8a;}
+
+/* 留言板 */
+.ai-badge{
+  display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+  color:#8a63d2; background:#f4effd; border:1px dashed #cbb8f0;
+  border-radius:9px; padding:8px 12px; line-height:1.5;
+}
+.src-meta{display:block; font-size:11px; color:#8a97a8; margin-top:4px;}
+.mat-item{
+  display:flex; gap:13px; align-items:flex-start; background:var(--card);
+  border:1px solid var(--line); border-radius:var(--r-md); padding:15px 17px; margin-bottom:11px;
+  box-shadow:var(--shadow-sm); transition:.15s;
+}
+.mat-item:hover{border-color:var(--brand); transform:translateY(-1px);}
+.mat-ico{font-size:22px; line-height:1; margin-top:2px;}
+.mat-body{flex:1; min-width:0;}
+.mat-title{font-size:13.5px; font-weight:650; color:var(--txt); display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.mat-page{font-size:10.5px; color:var(--brand); background:#e9f6f5; border-radius:6px; padding:2px 7px; font-weight:600;}
+.mat-text{font-size:12.5px; color:#5b6b80; line-height:1.65; margin-top:5px;}
+.mat-meta{font-size:11.5px; color:#9aa7b8; margin-top:6px;}
+.mat-dl{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; font-size:12.5px;
+  color:var(--brand); border:1px solid var(--line); border-radius:9px; padding:7px 13px;
+  text-decoration:none; transition:.15s; font-weight:600;
+}
+.mat-dl:hover{border-color:var(--brand); background:#f2faf9;}
+
+/* 留言板 */
+.board-input{
+  width:100%; min-height:90px; resize:vertical; border:1px solid var(--line); border-radius:10px;
+  padding:12px 14px; font-size:14px; outline:none; background:#fafbfd; transition:.15s; font-family:inherit;
+}
+.board-input:focus{border-color:var(--brand); background:#fff; box-shadow:0 0 0 3px rgba(14,165,164,.1);}
+.board-item{border:1px solid #eef2f7; border-radius:11px; padding:13px 15px; margin-bottom:11px; background:#fcfdfe;}
+.board-item.replied{border-left:3px solid #22b07d;}
+.board-item.pending{border-left:3px solid var(--warn);}
+.bi-head{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+.bi-user{font-size:13px;}
+.bi-head .acct{font-size:11px; color:#9aa7b8;}
+.bi-status{font-size:10.5px; padding:2px 8px; border-radius:6px; font-weight:600;}
+.board-item.pending .bi-status{background:#fdf3e3; color:#c07f18;}
+.board-item.replied .bi-status{background:#e5f7f2; color:#0e9c8a;}
+.bi-time{font-size:11px; color:#9aa7b8; margin-left:auto;}
+.bi-del{border:none; background:none; color:#c2ccd9; cursor:pointer; font-size:13px; padding:2px 5px;}
+.bi-del:hover{color:#e05656;}
+.bi-q{font-size:13.5px; color:#33445c; line-height:1.6;}
+.bi-reply{margin-top:8px; padding:8px 12px; background:#f4f9f8; border-radius:8px; font-size:12.5px; color:#3d5a55; line-height:1.55;}
+.bi-reply b{color:var(--brand);}
+.bi-replybox{display:flex; gap:8px; margin-top:9px;}
+.bi-replybox input{flex:1; border:1px solid var(--line); border-radius:8px; padding:7px 11px; font-size:12.5px; outline:none; background:#fff;}
+.bi-replybox input:focus{border-color:var(--brand);}
+
+/* 账号管理 */
+.user-form{display:grid; grid-template-columns:repeat(4,1fr) auto; gap:10px; align-items:center;}
+.user-form input, .user-form select{
+  padding:10px 13px; border:1px solid var(--line); border-radius:9px; outline:none;
+  background:#fafbfd; font-size:13.5px; transition:.15s;
+}
+.user-form input:focus, .user-form select:focus{border-color:var(--brand); background:#fff; box-shadow:0 0 0 3px rgba(14,165,164,.1);}
+@media (max-width:900px){ .user-form{grid-template-columns:1fr 1fr;} }
+
+/* 批量导入 */
+.import-bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.import-bar select{
+  padding:10px 13px; border:1px solid var(--line); border-radius:9px; outline:none;
+  background:#fafbfd; font-size:13.5px; min-width:170px;
+}
+.import-pick{display:inline-flex; align-items:center; gap:7px; cursor:pointer;}
+.import-pick svg{width:15px; height:15px;}
+.import-tip{
+  margin-top:12px; font-size:12.5px; color:var(--sub); line-height:1.85;
+  background:#f7fafc; border-radius:9px; padding:11px 14px; border:1px dashed #e2eaf2;
+}
+.import-tip code, .pwd-code{
+  background:#e9f6f5; color:#0b8a7d; padding:2px 7px; border-radius:5px;
+  font-size:12px; font-family:ui-monospace, Menlo, monospace;
+}
+.fail-box{
+  font-size:12.5px; color:#a8593c; background:#fdf6f2; border-radius:9px;
+  padding:11px 14px; line-height:1.9; border-left:3px solid #e59a6e;
+}
+
 /* ============ 弹窗 ============ */
 .modal-mask{
   position:fixed; inset:0; background:rgba(15,26,42,.42); backdrop-filter:blur(3px);
@@ -438,6 +561,14 @@ select{
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         AI 问答
       </button>
+      <button class="nav-item auth-hidden" data-view="board">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+        留言板
+      </button>
+      <button class="nav-item auth-hidden" data-view="materials">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h6M9 11h6"/></svg>
+        学习资料
+      </button>
       <button class="nav-item" data-view="kb">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         知识库管理
@@ -445,6 +576,10 @@ select{
       <button class="nav-item" data-view="dash">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         数据看板
+      </button>
+      <button class="nav-item auth-hidden" data-view="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        账号管理
       </button>
     </nav>
 
@@ -470,6 +605,11 @@ select{
         <button class="btn btn-ghost" id="newChatBtn" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           新对话
+        </button>
+        <button class="user-chip" id="userChip" title="当前登录身份">
+          <span class="uc-avatar" id="ucAvatar">游</span>
+          <span id="ucName">游客</span>
+          <span class="uc-role" id="ucRole">未登录</span>
         </button>
       </div>
     </header>
@@ -511,8 +651,8 @@ select{
         <div class="dropzone" id="dropzone">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
           <b>拖拽文件到此处，或点击选择</b>
-          <span>支持 PDF / Word(.docx) / TXT / Markdown，自动切分并入库</span>
-          <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.md,.csv" style="display:none;">
+          <span>支持 PPT(.pptx) / Word(.docx) / PDF / Excel / TXT，自动切分入库，学生可在「学习资料」中查看和下载</span>
+          <input type="file" id="fileInput" accept=".pdf,.docx,.pptx,.xlsx,.xls,.txt,.md,.csv" style="display:none;">
         </div>
 
         <div class="toolbar">
@@ -572,6 +712,14 @@ select{
 
         <div class="panel">
           <div class="panel-h">
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>近 14 天提问趋势</h3>
+            <span class="sub"><span class="lg-dot" style="background:var(--primary)"></span>总提问　<span class="lg-dot" style="background:#22b07d"></span>命中</span>
+          </div>
+          <div id="trendChart" class="trend"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
             <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>热门提问 Top 10</h3>
             <span class="sub">学生最关心的问题</span>
           </div>
@@ -584,6 +732,120 @@ select{
             <span class="sub">建议优先补充</span>
           </div>
           <div id="missList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图 4：留言板 -->
+    <section class="view" id="view-board">
+      <div class="pad">
+        <div class="panel">
+          <div class="panel-h">
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>写下你的留言</h3>
+            <span class="sub">知识库答不上的问题，可以留言给老师</span>
+          </div>
+          <textarea id="boardInput" class="board-input" maxlength="500" placeholder="例如：我想了解转专业的具体流程和截止时间…"></textarea>
+          <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+            <button class="btn btn-primary" id="boardSubmit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              提交留言
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <h3>全部留言</h3>
+            <span class="sub" id="boardCount"></span>
+          </div>
+          <div id="boardList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图 5：学习资料 -->
+    <section class="view" id="view-materials">
+      <div class="pad">
+        <div class="toolbar" style="margin-bottom:14px;">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="matSearch" placeholder="搜索老师上传的学习资料…">
+          </div>
+          <span class="sub" id="matCount" style="font-size:12.5px; color:var(--sub);"></span>
+        </div>
+        <div id="matList"></div>
+      </div>
+    </section>
+
+    <!-- 视图 6：账号管理 -->
+    <section class="view" id="view-users">
+      <div class="pad">
+        <div class="panel">
+          <div class="panel-h">
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>批量导入账号（Excel）</h3>
+            <span class="sub" id="importHint">上传 .xlsx / .xls / .csv，自动生成账号与初始密码</span>
+          </div>
+          <div class="import-bar">
+            <select id="importRole"></select>
+            <button class="btn btn-ghost" id="importTplBtn" title="下载模板">下载模板</button>
+            <label class="btn btn-primary import-pick">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+              选择表格并导入
+              <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;">
+            </label>
+          </div>
+          <div class="import-tip">
+            表格需包含列：<b>学号</b>（或工号）、<b>姓名</b>，可选 <b>班级</b>、<b>学院</b>。表头名称无需完全一致，程序会自动识别。<br>
+            初始密码规则：<b>姓名拼音 + 学号后两位</b>，如「张三 / 20231001」→ <code>zhangsan01</code>
+          </div>
+        </div>
+
+        <div class="panel" id="importResult" style="display:none">
+          <div class="panel-h">
+            <h3>导入结果</h3>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span class="sub" id="importSummary"></span>
+              <button class="btn btn-ghost" id="exportBtn">导出 CSV</button>
+              <button class="btn btn-ghost" id="closeResultBtn">收起</button>
+            </div>
+          </div>
+          <div class="kb-table-wrap"><table class="kb-table"><thead>
+            <tr><th>学号/工号</th><th>姓名</th><th>学院</th><th>班级</th><th>初始密码</th></tr>
+          </thead><tbody id="importList"></tbody></table></div>
+          <div id="importFail" style="margin-top:10px"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>单个创建账号</h3>
+            <span class="sub" id="usersHint"></span>
+          </div>
+          <div class="user-form">
+            <input id="nuAccount" placeholder="账号（学号/工号，3-20位字母数字）">
+            <input id="nuName" placeholder="姓名（可选）">
+            <input id="nuPassword" placeholder="初始密码（至少6位）">
+            <select id="nuRole"></select>
+            <button class="btn btn-primary" id="nuSubmit">创建账号</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <h3>账号列表</h3>
+            <span class="sub" id="usersTotal"></span>
+          </div>
+          <div class="kb-table-wrap"><table class="kb-table"><thead>
+            <tr><th>账号</th><th>姓名</th><th>身份</th><th>学院/班级</th><th>创建人</th><th>创建时间</th><th></th></tr>
+          </thead><tbody id="usersList"></tbody></table></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h"><h3>修改我的密码</h3></div>
+          <div class="user-form">
+            <input type="password" id="pwOld" placeholder="原密码">
+            <input type="password" id="pwNew" placeholder="新密码（至少6位）">
+            <button class="btn btn-ghost" id="pwSubmit">修改密码</button>
+          </div>
         </div>
       </div>
     </section>
@@ -622,16 +884,17 @@ select{
 
 <div class="toast-wrap" id="toastWrap"></div>
 
-<!-- 管理员登录弹窗 -->
+<!-- 登录弹窗 -->
 <div class="login-mask" id="loginMask">
   <div class="login-box">
     <h3>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      管理员登录
+      <span id="loginTitle">账号登录</span>
     </h3>
-    <p>知识库的修改操作需要管理员口令，问答功能不受影响。</p>
-    <input type="password" id="pwdInput" placeholder="请输入管理员口令" autocomplete="off">
-    <div class="login-err" id="loginErr">口令错误，请重试</div>
+    <p id="loginDesc">请使用学号 / 教师工号 / 管理员账号登录后使用。</p>
+    <input type="text" id="accInput" placeholder="账号（学号 / 工号 / 账号名）" autocomplete="username" style="margin-bottom:10px;">
+    <input type="password" id="pwdInput" placeholder="密码" autocomplete="current-password">
+    <div class="login-err" id="loginErr">账号或密码错误</div>
     <div class="login-row">
       <button class="btn btn-ghost" id="loginCancel">取消</button>
       <button class="btn btn-primary" id="loginOk">登录</button>
@@ -659,48 +922,66 @@ function toast(msg, type=''){
   setTimeout(()=>{ el.style.opacity='0'; el.style.transition='.25s'; setTimeout(()=>el.remove(),260); }, 2400);
 }
 
-/* ---------- 管理员鉴权 ---------- */
-const ADMIN_KEY = 'adminToken';
-let adminToken = localStorage.getItem(ADMIN_KEY) || '';
+/* ---------- 账号体系 ---------- */
+const AUTH_KEY = 'authToken';
+const USER_KEY = 'authUser';
+let authToken = localStorage.getItem(AUTH_KEY) || '';
+let currentUser = null;
+try{ currentUser = JSON.parse(localStorage.getItem(USER_KEY) || 'null'); }catch(e){}
 let pendingAction = null; // 登录成功后要继续的动作
 
-function setAdminUI(){
-  const chip = $('#adminChip');
-  if(adminToken){
-    chip.classList.add('on');
-    $('#adminChipTxt').textContent = '管理员已登录';
-  }else{
-    chip.classList.remove('on');
-    $('#adminChipTxt').textContent = '管理员登录';
-  }
+const ROLE_LABEL = { student:'学生', teacher:'教师', admin:'管理员', developer:'开发者' };
+// 各身份可见的导航视图
+const ROLE_VIEWS = {
+  guest:     ['chat'],
+  student:   ['chat','board','materials'],
+  teacher:   ['chat','board','materials','kb','users'],
+  admin:     ['chat','board','materials','kb','dash'],
+  developer: ['chat','board','materials','kb','dash','users'],
+};
+
+function canSeeView(v){
+  const role = currentUser ? currentUser.role : 'guest';
+  return (ROLE_VIEWS[role] || ROLE_VIEWS.guest).includes(v);
 }
 
 function openLogin(action){
   pendingAction = action || null;
   $('#loginErr').style.display = 'none';
+  $('#accInput').value = '';
   $('#pwdInput').value = '';
+  $('#loginTitle').textContent = '账号登录';
+  $('#loginDesc').textContent = '请使用学号 / 教师工号 / 管理员账号登录后使用。';
   $('#loginMask').classList.add('show');
-  setTimeout(()=> $('#pwdInput').focus(), 60);
+  setTimeout(()=> $('#accInput').focus(), 60);
 }
 $('#loginCancel').onclick = ()=>{ $('#loginMask').classList.remove('show'); pendingAction = null; };
 $('#loginMask').onclick = (e)=>{ if(e.target.id==='loginMask'){ $('#loginMask').classList.remove('show'); pendingAction = null; } };
 $('#pwdInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#loginOk').click(); });
+$('#accInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#pwdInput').focus(); });
 
 $('#loginOk').onclick = async ()=>{
+  const account = $('#accInput').value.trim();
   const pwd = $('#pwdInput').value;
-  if(!pwd) return;
+  if(!account || !pwd) return;
   try{
-    const r = await fetch('/api/admin/login', {
+    const r = await fetch('/api/auth/login', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({password: pwd})
+      body: JSON.stringify({account, password: pwd})
     });
     const d = await r.json();
-    if(!r.ok){ $('#loginErr').style.display='block'; return; }
-    adminToken = d.token || '';
-    localStorage.setItem(ADMIN_KEY, adminToken);
+    if(!r.ok){
+      $('#loginErr').textContent = d.error || '账号或密码错误';
+      $('#loginErr').style.display='block';
+      return;
+    }
+    authToken = d.token;
+    currentUser = d.user;
+    localStorage.setItem(AUTH_KEY, authToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(d.user));
     $('#loginMask').classList.remove('show');
-    setAdminUI();
-    toast('管理员登录成功', 'ok');
+    applyRoleUI();
+    toast('登录成功，欢迎你，' + (d.user.name || ROLE_LABEL[d.user.role]), 'ok');
     const act = pendingAction; pendingAction = null;
     if(act) act();
   }catch(e){
@@ -709,47 +990,102 @@ $('#loginOk').onclick = async ()=>{
   }
 };
 
-$('#adminChip').onclick = async ()=>{
-  if(adminToken){
-    try{ await fetch('/api/admin/logout', {method:'POST', headers:{'X-Admin-Token': adminToken}}); }catch(e){}
-    adminToken = '';
-    localStorage.removeItem(ADMIN_KEY);
-    setAdminUI();
-    toast('已退出管理员模式');
+async function doLogout(){
+  if(!authToken) { openLogin(); return; }
+  if(!confirm('确定退出登录吗？')) return;
+  try{ await fetch('/api/auth/logout', {method:'POST', headers:{'X-Auth-Token': authToken}}); }catch(e){}
+  authToken = '';
+  currentUser = null;
+  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(USER_KEY);
+  applyRoleUI();
+  switchView('chat');
+  toast('已退出登录');
+}
+
+function applyRoleUI(){
+  // 顶栏身份卡
+  if(currentUser){
+    $('#ucName').textContent = currentUser.name || currentUser.account;
+    $('#ucRole').textContent = ROLE_LABEL[currentUser.role] || currentUser.role;
+    $('#ucAvatar').textContent = (currentUser.name || currentUser.account).slice(0,1);
   }else{
-    openLogin();
+    $('#ucName').textContent = '游客';
+    $('#ucRole').textContent = '点击登录';
+    $('#ucAvatar').textContent = '游';
   }
-};
+  // 导航可见性
+  $$('.nav-item').forEach(b=>{
+    b.classList.toggle('auth-hidden', !canSeeView(b.dataset.view));
+  });
+  // 知识库页的身份标签
+  const chip = $('#adminChip');
+  if(currentUser && ['admin','developer'].includes(currentUser.role)){
+    chip.classList.add('on');
+    $('#adminChipTxt').textContent = (currentUser.name || currentUser.account) + ' · ' + ROLE_LABEL[currentUser.role];
+  }else{
+    chip.classList.remove('on');
+    $('#adminChipTxt').textContent = '管理员登录';
+  }
+  // 游客：禁用输入框
+  applyGuestGuard();
+  // 若当前视图不可见，跳回问答
+  if(!canSeeView(CURRENT_VIEW)) switchView('chat');
+}
+
+function applyGuestGuard(){
+  const q = $('#qInput');
+  const btn = $('#sendBtn');
+  if(!currentUser){
+    q.disabled = true;
+    q.placeholder = '游客仅可浏览，登录后才能提问…';
+    btn.disabled = true;
+  }else{
+    q.disabled = false;
+    q.placeholder = '输入你的问题，例如：图书馆自习室几点关门？';
+    btn.disabled = false;
+  }
+}
+
+$('#userChip').onclick = doLogout;
 
 /**
  * 带鉴权的请求：401 时弹出登录，登录成功后自动重试原操作
  */
 async function adminFetch(url, opts = {}, retryAction = null){
-  opts.headers = Object.assign({}, opts.headers || {}, { 'X-Admin-Token': adminToken });
+  opts.headers = Object.assign({}, opts.headers || {}, { 'X-Auth-Token': authToken });
   const r = await fetch(url, opts);
   if(r.status === 401){
     const d = await r.json().catch(()=>({}));
-    if(d.needAuth){
-      adminToken = '';
-      localStorage.removeItem(ADMIN_KEY);
-      setAdminUI();
-      openLogin(retryAction || (()=>{ toast('请重新登录后操作'); }));
-      throw new Error('NEED_LOGIN');
-    }
+    authToken = '';
+    currentUser = null;
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(USER_KEY);
+    applyRoleUI();
+    openLogin(retryAction || (()=>{ toast('请重新登录后操作'); }));
+    throw new Error('NEED_LOGIN');
+  }
+  if(r.status === 403){
+    const d = await r.json().catch(()=>({}));
+    toast(d.error || '当前身份无权限', 'warn');
     throw new Error(d.error || '无权限');
   }
   return r;
 }
 
-setAdminUI();
+applyRoleUI();
 
 /* ---------- 视图切换 ---------- */
 const VIEW_META = {
-  chat: { title:'AI 问答', tag:'可溯源' },
-  kb:   { title:'知识库管理', tag:'可编辑' },
-  dash: { title:'数据看板', tag:'运营视角' },
+  chat:  { title:'AI 问答', tag:'可溯源' },
+  board: { title:'留言板', tag:'师生互动' },
+  materials: { title:'学习资料', tag:'老师上传' },
+  kb:    { title:'知识库管理', tag:'可编辑' },
+  dash:  { title:'数据看板', tag:'运营视角' },
+  users: { title:'账号管理', tag:'权限中心' },
 };
 function switchView(v){
+  if(!canSeeView(v)){ openLogin(); return; }
   CURRENT_VIEW = v;
   $$('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
   $$('.view').forEach(s=>s.classList.toggle('active', s.id==='view-'+v));
@@ -758,6 +1094,9 @@ function switchView(v){
   $('#sidebar').classList.remove('open');
   if(v==='kb') loadKb();
   if(v==='dash') loadDash();
+  if(v==='board') loadBoard();
+  if(v==='users') loadUsers();
+  if(v==='materials') loadMaterials();
   if(v==='chat') loadConvBar();
   window.scrollTo({top:0});
 }
@@ -844,6 +1183,7 @@ function typeWrite(el, text, done){
 async function send(){
   const q = qInput.value.trim();
   if(!q) return;
+  if(!currentUser){ openLogin(()=>{ if(q) { qInput.value = q; send(); } }); return; }
   const btn = $('#sendBtn');
   btn.disabled = true;
   qInput.value = ''; qInput.style.height = 'auto';
@@ -857,27 +1197,132 @@ async function send(){
   try{
     const res = await fetch('/api/ask', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({question:q, convId:CONV_ID})
+      headers:{'Content-Type':'application/json','X-Auth-Token': authToken},
+      body: JSON.stringify({question:q, convId:CONV_ID, stream:true})
     });
-    const data = await res.json();
+    if(res.status === 401){
+      openLogin(()=>send());
+      return;
+    }
 
-    typeWrite(txtEl, data.answer || '（无回答）', ()=>{
-      if(data.sources && data.sources.length){
-        srcEl.style.display = 'flex';
-        srcEl.innerHTML = `<div class="sources-title">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          引用 ${data.sources.length} 条知识</div>` +
-          data.sources.map(s=>`<div class="src"><b>#${s.id}</b>${esc(s.text)}${s.category?`<span class="cat">${s.category}</span>`:''}</div>`).join('');
+    // 兼容：如果服务端返回普通 JSON（非流式），直接整段渲染
+    const ctype = res.headers.get('content-type') || '';
+    if(ctype.includes('application/json')){
+      const data = await res.json();
+      typeWrite(txtEl, data.answer || '（无回答）', ()=>renderSources(botEl, srcEl, data.sources, data.mode));
+      loadStats();
+      return;
+    }
+
+    // ---- SSE 流式渲染 ----
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    let full = '';
+    let gotSources = null;
+
+    txtEl.innerHTML = '<span class="cursor"></span>';
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += decoder.decode(value, {stream:true});
+      const lines = buf.split('\n');
+      buf = lines.pop() || '';
+      for(const line of lines){
+        const t = line.trim();
+        if(!t.startsWith('data:')) continue;
+        let evt;
+        try{ evt = JSON.parse(t.slice(5).trim()); }catch(_){ continue; }
+
+        if(evt.type === 'meta'){
+          gotSources = evt.sources;
+        }else if(evt.type === 'delta'){
+          full += evt.text;
+          // 保留开头的光标节点，把新文本插到它前面
+          const cur = txtEl.querySelector('.cursor');
+          const span = document.createElement('span');
+          span.textContent = evt.text;
+          if(cur){ cur.parentNode.insertBefore(span, cur); }
+          else{ txtEl.appendChild(span); }
+          botEl.scrollIntoView({behavior:'smooth', block:'end'});
+        }else if(evt.type === 'error'){
+          full += '\n\n⚠️ ' + evt.message;
+          txtEl.appendChild(document.createTextNode('\n\n⚠️ ' + evt.message));
+        }else if(evt.type === 'done'){
+          const cur = txtEl.querySelector('.cursor');
+          if(cur) cur.remove();
+          renderSources(botEl, srcEl, evt.sources || gotSources, evt.mode);
+          if(evt.answerId) renderFb(botEl, evt.answerId);
+          botEl.scrollIntoView({behavior:'smooth', block:'end'});
+        }
       }
-      botEl.scrollIntoView({behavior:'smooth', block:'end'});
-    });
+    }
+
+    // 兜底：若没有 done 事件（连接中断），也要清光标
+    const cur = txtEl.querySelector('.cursor');
+    if(cur) cur.remove();
+    if(!full.trim()) txtEl.textContent = '（无回答）';
     loadStats();
   }catch(e){
     txtEl.textContent = '请求失败，请确认服务是否运行：' + e.message;
   }finally{
     btn.disabled = false;
   }
+}
+
+function renderSources(botEl, srcEl, sources, mode){
+  if(mode === 'ai'){
+    srcEl.style.display = 'flex';
+    srcEl.innerHTML = `<div class="ai-badge">🤖 本回答由 AI 生成（校内知识库暂未收录该问题），仅供参考学习，重要信息请与老师核实</div>`;
+    botEl.scrollIntoView({behavior:'smooth', block:'end'});
+    return;
+  }
+  if(sources && sources.length){
+    srcEl.style.display = 'flex';
+    srcEl.innerHTML = `<div class="sources-title">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      📚 依据老师上传的校内资料 · 引用 ${sources.length} 条</div>` +
+      sources.map(s=>{
+        const fname = (s.source||'').replace('上传：','');
+        const meta = [s.uploader, s.time ? (s.time||'').slice(0,10) : '', fname].filter(Boolean).join(' · ');
+        return `<div class="src"><b>#${s.id}</b>${esc(s.text)}${meta?`<span class="src-meta">来源：${esc(meta)}</span>`:''}${s.category?`<span class="cat">${s.category}</span>`:''}</div>`;
+      }).join('');
+    botEl.scrollIntoView({behavior:'smooth', block:'end'});
+  }
+}
+
+/* ---------- 回答反馈（点赞/点踩） ---------- */
+function renderFb(botEl, messageId){
+  if(botEl.querySelector('.fb-bar')) return;
+  const bar = document.createElement('div');
+  bar.className = 'fb-bar';
+  bar.innerHTML = `
+    <span class="fb-q">这个回答有帮助吗？</span>
+    <button class="fb-btn" data-v="1" title="有帮助">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88L14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+    </button>
+    <button class="fb-btn" data-v="-1" title="没帮助">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180)"><path d="M7 10v12"/><path d="M15 5.88L14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+    </button>`;
+  botEl.querySelector('.bubble').appendChild(bar);
+
+  bar.querySelectorAll('.fb-btn').forEach(b=>{
+    b.onclick = async ()=>{
+      const v = Number(b.dataset.v);
+      try{
+        const r = await (await fetch('/api/feedback', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-Auth-Token': authToken},
+          body: JSON.stringify({messageId, value:v})
+        })).json();
+        if(!r.ok) return;
+        bar.querySelectorAll('.fb-btn').forEach(x=>x.classList.remove('on'));
+        if(r.value !== 0){ b.classList.add('on'); toast(r.value===1?'感谢你的认可！':'收到反馈，我们会继续补充知识库'); }
+        else{ toast('已取消评价'); }
+      }catch(_){}
+    };
+  });
 }
 
 /* ---------- 会话历史 ---------- */
@@ -1105,7 +1550,9 @@ async function uploadFile(file){
 
 /* ---------- 看板 ---------- */
 async function loadDash(){
-  const d = await (await fetch('/api/analytics')).json();
+  const r = await fetch('/api/analytics', {headers:{'X-Auth-Token': authToken}});
+  if(r.status === 401){ openLogin(); return; }
+  const d = await r.json();
   const st = await (await fetch('/api/stats')).json();
 
   $('#kpiTotal').textContent = st.total;
@@ -1114,6 +1561,29 @@ async function loadDash(){
   $('#kpiToday').textContent = `今日 ${st.today} 次`;
   $('#kpiHit').innerHTML = d.hitRate + '<small>%</small>';
   $('#kpiMiss').textContent = st.missToday;
+  // 检索命中率卡片副标题升级为「回答满意度」
+  $('#kpiHit').parentElement.querySelector('.kpi-sub').textContent =
+    d.feedback && d.feedback.rate !== null
+      ? `回答满意度 ${d.feedback.rate}%（👍${d.feedback.up} · 👎${d.feedback.down}）`
+      : '命中即知识库能覆盖';
+
+  // 近 14 天提问趋势（总提问 / 命中 双柱）
+  const daily = (d.daily || []).slice(-14);
+  const tmax = Math.max(1, ...daily.map(x=>Math.max(x.c, x.hit||0)));
+  $('#trendChart').innerHTML = daily.length
+    ? daily.map(x=>{
+        const h1 = Math.max(4, (x.c/tmax*100).toFixed(1));
+        const h2 = Math.max(3, ((x.hit||0)/tmax*100).toFixed(1));
+        return `<div class="col" title="${x.d}：提问 ${x.c} 次，命中 ${x.hit||0} 次">
+          <div class="bars">
+            <div class="b total" style="height:${h1}%"></div>
+            <div class="b hit" style="height:${h2}%"></div>
+          </div>
+          <div class="num">${x.c}</div>
+          <div class="day">${x.d.slice(5)}</div>
+        </div>`;
+      }).join('')
+    : '<div class="trend-empty">暂无提问数据，去问答页问几个问题就会出现在这里</div>';
 
   const max = Math.max(1, ...d.topQuestions.map(x=>x.c));
   $('#topList').innerHTML = d.topQuestions.length
@@ -1131,6 +1601,277 @@ async function loadDash(){
       </div>`).join('')
     : '<div class="empty" style="padding:30px">暂无未命中问题，知识库覆盖良好</div>';
 }
+
+/* ---------- 留言板 ---------- */
+async function loadBoard(){
+  try{
+    const r = await fetch('/api/board', {headers:{'X-Auth-Token': authToken}});
+    if(r.status === 401){ openLogin(); return; }
+    const list = await r.json();
+    $('#boardCount').textContent = `共 ${list.length} 条`;
+    const canReply = currentUser && ['teacher','developer','admin'].includes(currentUser.role);
+    const canDelete = currentUser && currentUser.role === 'developer';
+    $('#boardList').innerHTML = list.length ? list.map(m=>`
+      <div class="board-item ${m.status}">
+        <div class="bi-head">
+          <b class="bi-user">${esc(m.name || m.account)}</b>
+          <span class="acct">${esc(m.account)}</span>
+          <span class="bi-status">${m.status==='replied'?'已回复':'待回复'}</span>
+          <span class="bi-time">${m.time.slice(5,16)}</span>
+          ${canDelete?`<button class="bi-del" data-id="${m.id}" title="删除留言">✕</button>`:''}
+        </div>
+        <div class="bi-q">${esc(m.question)}</div>
+        ${m.replies.map(r=>`<div class="bi-reply"><b>${esc(r.replier)}</b>（${ROLE_LABEL[r.role]||r.role}）：${esc(r.content)}</div>`).join('')}
+        ${canReply?`<div class="bi-replybox">
+          <input placeholder="回复这条留言…" data-id="${m.id}">
+          <button class="btn btn-ghost bi-reply-btn" data-id="${m.id}">回复</button>
+        </div>`:''}
+      </div>`).join('')
+    : '<div class="empty" style="padding:30px">还没有留言</div>';
+
+    $('#boardList').querySelectorAll('.bi-reply-btn').forEach(b=>{
+      b.onclick = ()=> replyBoard(b.dataset.id);
+    });
+    $('#boardList').querySelectorAll('.bi-replybox input').forEach(i=>{
+      i.addEventListener('keydown', e=>{ if(e.key==='Enter') replyBoard(i.dataset.id); });
+    });
+    $('#boardList').querySelectorAll('.bi-del').forEach(b=>{
+      b.onclick = async ()=>{
+        if(!confirm('确定删除这条留言及其回复？')) return;
+        await adminFetch('/api/board/'+b.dataset.id, {method:'DELETE'}, loadBoard);
+        toast('已删除'); loadBoard();
+      };
+    });
+  }catch(e){}
+}
+
+async function replyBoard(id){
+  const input = document.querySelector(`.bi-replybox input[data-id="${id}"]`);
+  const content = input.value.trim();
+  if(!content) return;
+  const r = await adminFetch(`/api/board/${id}/reply`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({content})
+  });
+  if(r.ok){ toast('回复成功', 'ok'); loadBoard(); }
+}
+
+$('#boardSubmit').onclick = async ()=>{
+  if(!currentUser){ openLogin(); return; }
+  const q = $('#boardInput').value.trim();
+  if(q.length < 4){ toast('留言内容太短啦', 'warn'); return; }
+  const r = await adminFetch('/api/board', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({question:q})
+  });
+  if(r.ok){
+    $('#boardInput').value = '';
+    toast('留言已提交，老师会尽快回复', 'ok');
+    loadBoard();
+  }
+};
+
+/* ---------- 账号管理 ---------- */
+function renderRoleOptions(){
+  const sel = $('#nuRole');
+  const impSel = $('#importRole');
+  const role = currentUser ? currentUser.role : 'guest';
+  const opts = role === 'developer'
+    ? [['student','学生'],['teacher','教师'],['admin','管理员']]
+    : [['student','学生']];
+  sel.innerHTML = opts.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+
+  // 批量导入只能创建 学生/教师
+  const impOpts = role === 'developer'
+    ? [['student','导入学生账号'],['teacher','导入教师账号']]
+    : [['student','导入学生账号']];
+  impSel.innerHTML = impOpts.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+
+  $('#usersHint').textContent = role === 'developer'
+    ? '你可以创建 学生 / 教师 / 管理员 账号'
+    : '你可以创建 学生 账号';
+}
+
+let lastImport = []; // 最近一次导入结果，用于导出
+
+$('#importFile').onchange = async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const role = $('#importRole').value;
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('role', role);
+
+  const hint = $('#importHint');
+  const oldHint = hint.textContent;
+  hint.textContent = '正在解析并导入…';
+  try{
+    const r = await adminFetch('/api/users/import', { method:'POST', body: fd });
+    const d = await r.json();
+    if(!r.ok){ toast(d.error || '导入失败', 'warn'); hint.textContent = oldHint; return; }
+
+    lastImport = d.created || [];
+    $('#importResult').style.display = 'block';
+    $('#importSummary').textContent = `共 ${d.total} 行 · 成功 ${lastImport.length} · 失败 ${(d.failed||[]).length}`;
+    $('#importList').innerHTML = lastImport.length
+      ? lastImport.map(x=>`<tr>
+          <td><b>${esc(x.account)}</b></td>
+          <td>${esc(x.name)}</td>
+          <td>${esc(x.college || '—')}</td>
+          <td>${esc(x.klass || '—')}</td>
+          <td><code class="pwd-code">${esc(x.password)}</code></td>
+        </tr>`).join('')
+      : '<tr><td colspan="5" style="text-align:center; color:#9aa7b8; padding:20px;">没有新增账号</td></tr>';
+
+    $('#importFail').innerHTML = (d.failed && d.failed.length)
+      ? `<div class="fail-box"><b>未导入 ${d.failed.length} 条：</b><br>` +
+        d.failed.map(f=>`· ${esc(f.account)} ${esc(f.name)} — ${esc(f.reason)}`).join('<br>') + '</div>'
+      : '';
+
+    toast(`导入完成：成功 ${lastImport.length} 个账号`, 'ok');
+    hint.textContent = oldHint;
+    loadUsers();
+  }catch(err){
+    hint.textContent = oldHint;
+  }finally{
+    e.target.value = '';
+  }
+};
+
+$('#closeResultBtn').onclick = ()=>{ $('#importResult').style.display = 'none'; };
+
+$('#exportBtn').onclick = ()=>{
+  if(!lastImport.length){ toast('没有可导出的数据', 'warn'); return; }
+  const head = ['学号/工号','姓名','学院','班级','初始密码'];
+  const rows = lastImport.map(x=>[x.account, x.name, x.college||'', x.klass||'', x.password]);
+  const csv = '\ufeff' + [head, ...rows]
+    .map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))
+    .join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `账号导入结果_${new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('已导出 CSV，可用 Excel 打开', 'ok');
+};
+
+$('#importTplBtn').onclick = ()=>{
+  const isTeacher = $('#importRole').value === 'teacher';
+  const head = isTeacher ? ['工号','姓名','学院'] : ['学号','姓名','学院','班级'];
+  const sample = isTeacher
+    ? ['T2024002','王老师','机械工程学院']
+    : ['20231001','张三','机械工程学院','机械2301班'];
+  const csv = '\ufeff' + [head, sample].map(r=>r.map(v=>`"${v}"`).join(',')).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = isTeacher ? '教师导入模板.csv' : '学生导入模板.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('模板已下载，用 Excel 填好后另存为 xlsx 或直接上传', 'ok');
+};
+
+async function loadUsers(){
+  renderRoleOptions();
+  try{
+    const r = await adminFetch('/api/users');
+    if(!r.ok) return;
+    const list = await r.json();
+    $('#usersTotal').textContent = `共 ${list.length} 个账号`;
+    $('#usersList').innerHTML = list.map(u=>`<tr>
+      <td><b>${esc(u.account)}</b></td>
+      <td>${esc(u.name || '—')}</td>
+      <td><span class="role-badge rb-${u.role}">${ROLE_LABEL[u.role]||u.role}</span></td>
+      <td>${esc(u.remark || '—')}</td>
+      <td>${esc(u.created_by)}</td>
+      <td>${u.created_at.slice(0,10)}</td>
+      <td>${(currentUser.role==='developer' && u.role!=='developer')
+        ? `<button class="bi-del" data-id="${u.id}" title="删除账号">✕</button>` : ''}</td>
+    </tr>`).join('');
+    $('#usersList').querySelectorAll('.bi-del').forEach(b=>{
+      b.onclick = async ()=>{
+        if(!confirm('确定删除该账号？其登录会话也将失效。')) return;
+        await adminFetch('/api/users/'+b.dataset.id, {method:'DELETE'}, loadUsers);
+        toast('账号已删除'); loadUsers();
+      };
+    });
+  }catch(e){}
+}
+
+$('#nuSubmit').onclick = async ()=>{
+  const account = $('#nuAccount').value.trim();
+  const name = $('#nuName').value.trim();
+  const password = $('#nuPassword').value;
+  const role = $('#nuRole').value;
+  if(!account || !password){ toast('请填写账号和初始密码', 'warn'); return; }
+  const r = await adminFetch('/api/users', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({account, password, role, name})
+  });
+  const d = await r.json().catch(()=>({}));
+  if(r.ok){
+    toast(`账号 ${account} 创建成功`, 'ok');
+    $('#nuAccount').value = $('#nuName').value = $('#nuPassword').value = '';
+    loadUsers();
+  }else{
+    toast(d.error || '创建失败', 'warn');
+  }
+};
+
+$('#pwSubmit').onclick = async ()=>{
+  const oldPassword = $('#pwOld').value;
+  const newPassword = $('#pwNew').value;
+  if(!currentUser){ openLogin(); return; }
+  const r = await fetch('/api/auth/password', {
+    method:'POST', headers:{'Content-Type':'application/json','X-Auth-Token': authToken},
+    body: JSON.stringify({oldPassword, newPassword})
+  });
+  const d = await r.json().catch(()=>({}));
+  if(r.ok){
+    toast('密码修改成功', 'ok');
+    $('#pwOld').value = $('#pwNew').value = '';
+  }else{
+    toast(d.error || '修改失败', 'warn');
+  }
+};
+
+/* ---------- 学习资料 ---------- */
+let matTimer = null;
+function loadMaterials(q){
+  q = (q === undefined) ? ($('#matSearch') ? $('#matSearch').value.trim() : '') : q;
+  const url = '/api/knowledge?hasFile=1&size=50' + (q ? '&q=' + encodeURIComponent(q) : '');
+  fetch(url, {headers:{'X-Auth-Token': authToken}})
+    .then(r=>{ if(r.status===401){ openLogin(); throw new Error('NEED_LOGIN'); } return r.json(); })
+    .then(d=>{
+      $('#matCount').textContent = `共 ${d.total} 份资料`;
+      $('#matList').innerHTML = d.items.length ? d.items.map(it=>{
+        const fname = (it.source || '').replace('上传：','');
+        const up = it.uploader || '老师';
+        const time = (it.created_at || '').slice(0,10);
+        // 从条目中提取页码/工作表标记
+        const pageMark = (it.content.match(/^【第 \d+ 页】|^【工作表：[^】]*】/)||[''])[0];
+        return `<div class="mat-item">
+          <div class="mat-ico">${/\.pptx?$/i.test(fname)?'📊':/\.docx?$/i.test(fname)?'📄':/\.xlsx?$/i.test(fname)?'📈':/\.pdf$/i.test(fname)?'📕':'📃'}</div>
+          <div class="mat-body">
+            <div class="mat-title">${esc(fname)}${pageMark?`<span class="mat-page">${esc(pageMark.replace(/[【】]/g,''))}</span>`:''}</div>
+            <div class="mat-text">${esc(it.content.replace(/^【[^】]*】\n?/,'').slice(0,120))}${it.content.length>120?'…':''}</div>
+            <div class="mat-meta">上传者：${esc(up)} · ${time} · 分类：${esc(it.category)}</div>
+          </div>
+          <a class="mat-dl" href="/api/files/${encodeURIComponent(fname)}" title="下载原文件">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            下载
+          </a>
+        </div>`;
+      }).join('')
+      : '<div class="empty" style="padding:40px">老师还没有上传资料</div>';
+    })
+    .catch(()=>{});
+}
+$('#matSearch').addEventListener('input', ()=>{
+  clearTimeout(matTimer);
+  matTimer = setTimeout(()=>loadMaterials($('#matSearch').value.trim()), 350);
+});
 
 /* ---------- 启动 ---------- */
 loadStats();
