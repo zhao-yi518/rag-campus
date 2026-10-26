@@ -412,8 +412,49 @@ select{
   flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; font-size:12.5px;
   color:var(--brand); border:1px solid var(--line); border-radius:9px; padding:7px 13px;
   text-decoration:none; transition:.15s; font-weight:600;
+  background:transparent; cursor:pointer; font-family:inherit; white-space:nowrap;
 }
 .mat-dl:hover{border-color:var(--brand); background:#f2faf9;}
+.mat-acts{flex:0 0 auto; display:flex; flex-direction:column; gap:7px;}
+.mat-view{color:#5b6b80;}
+.mat-view:hover{color:var(--brand);}
+
+/* 资料在线预览弹层 */
+.mat-modal{
+  position:fixed; inset:0; background:rgba(15,23,42,.55); backdrop-filter:blur(2px);
+  display:none; align-items:center; justify-content:center; z-index:9999; padding:24px;
+}
+.mat-modal.show{display:flex;}
+.mat-modal-box{
+  width:min(920px, 96vw); height:min(86vh, 980px); background:#fff;
+  border-radius:14px; box-shadow:0 24px 64px rgba(0,0,0,.28);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.mat-modal-head{
+  display:flex; align-items:center; gap:12px; padding:13px 18px;
+  border-bottom:1px solid #eef2f7; flex:0 0 auto;
+}
+.mat-modal-title{
+  flex:1; font-size:14px; font-weight:650; color:#1a2433;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.mat-modal-close{
+  flex:0 0 auto; width:28px; height:28px; border:none; background:#f2f5f9;
+  border-radius:8px; font-size:19px; line-height:1; color:#64748b; cursor:pointer;
+  transition:.15s; display:flex; align-items:center; justify-content:center;
+}
+.mat-modal-close:hover{background:#e2e8f0; color:#1a2433;}
+.mat-modal-body{flex:1; min-height:0; overflow:auto; background:#fafbfd;}
+.mat-modal-frame{width:100%; height:100%; border:none; display:block; background:#fff;}
+.mat-modal-text{
+  padding:22px 26px; font-size:13.5px; line-height:1.85; color:#2c3646;
+  white-space:pre-wrap; word-break:break-word;
+}
+.mat-modal-tip{
+  margin:16px 18px 0; padding:9px 13px; background:#fff8e1; border-left:3px solid #f0b429;
+  border-radius:0 6px 6px 0; font-size:12.5px; color:#7a4b00;
+}
+.mat-modal-loading{padding:26px; text-align:center; color:#94a3b8; font-size:13px;}
 
 /* 留言板 */
 .board-input{
@@ -819,6 +860,17 @@ select{
         <div id="matList"></div>
       </div>
     </section>
+
+    <!-- 资料在线预览弹层 -->
+    <div class="mat-modal" id="matModal">
+      <div class="mat-modal-box">
+        <div class="mat-modal-head">
+          <span class="mat-modal-title" id="matModalTitle">资料预览</span>
+          <button class="mat-modal-close" id="matModalClose" title="关闭">×</button>
+        </div>
+        <div class="mat-modal-body" id="matModalBody"></div>
+      </div>
+    </div>
 
     <!-- 视图 6：账号管理 -->
     <section class="view" id="view-users">
@@ -2041,10 +2093,16 @@ function loadMaterials(q){
             <div class="mat-text">${esc(it.content.replace(/^【[^】]*】\n?/,'').slice(0,120))}${it.content.length>120?'…':''}</div>
             <div class="mat-meta">上传者：${esc(up)} · ${time} · 分类：${esc(it.category)}</div>
           </div>
-          <a class="mat-dl" href="/api/files/${encodeURIComponent(fname)}" title="下载原文件">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-            下载
-          </a>
+          <div class="mat-acts">
+            <button class="mat-dl mat-view" data-fname="${esc(fname)}" title="在线浏览">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              浏览
+            </button>
+            <button class="mat-dl mat-dl-btn" data-fname="${esc(fname)}" title="下载原文件">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+              下载
+            </button>
+          </div>
         </div>`;
       }).join('')
       : '<div class="empty" style="padding:40px">老师还没有上传资料</div>';
@@ -2054,6 +2112,101 @@ function loadMaterials(q){
 $('#matSearch').addEventListener('input', ()=>{
   clearTimeout(matTimer);
   matTimer = setTimeout(()=>loadMaterials($('#matSearch').value.trim()), 350);
+});
+
+/**
+ * 资料下载：用 fetch 带 X-Auth-Token 拉二进制，再触发本地保存。
+ *
+ * 为什么不用 <a href="/api/files/xxx">：
+ *   浏览器点击 <a> 是原生跳转，带不上自定义请求头 X-Auth-Token，
+ *   后端鉴权必然 401，页面就变成空白或一段 JSON —— 这正是之前的 bug。
+ *   改成 fetch 后 token 能正常带上，拿到 blob 再走 a.download 保存。
+ */
+async function downloadMaterial(fname){
+  toast('正在准备下载…');
+  try{
+    const url = '/api/files/' + encodeURIComponent(fname);
+    const r = await fetch(url, { headers: { 'X-Auth-Token': authToken } });
+    if (r.status === 401){ openLogin(); return; }
+    if (!r.ok){
+      const msg = await r.json().catch(()=>({error:'文件不存在'}));
+      toast(msg.error || '下载失败', 'err');
+      return;
+    }
+    const blob = await r.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objUrl;
+    a.download = fname.replace(/^\d+_/, '');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // 稍后释放，避免 Safari 还没读完就回收
+    setTimeout(()=>URL.revokeObjectURL(objUrl), 4000);
+    toast('已开始下载', 'ok');
+  }catch(e){
+    toast('网络异常，下载失败', 'err');
+  }
+}
+
+/**
+ * 在线浏览：在弹层里内嵌 iframe 指向 ?inline=1。
+ * PDF / 纯文本 / CSV 浏览器能直接渲染；Office 文件无法内嵌，
+ * 这里改为展示已解析出的正文片段，并提示下载后用 WPS/Office 打开。
+ */
+async function previewMaterial(fname){
+  const isOffice = /\.(docx?|pptx?|xlsx?)$/i.test(fname);
+  const box = $('#matModal');
+  const body = $('#matModalBody');
+  const title = $('#matModalTitle');
+  title.textContent = fname.replace(/^\d+_/, '');
+
+  if (isOffice){
+    // Office 类：显示系统已解析的正文，说明为何不能内嵌
+    body.innerHTML = '<div class="mat-modal-tip">该格式浏览器无法直接渲染，以下是系统解析出的文本内容，完整排版请下载后用 Office / WPS 查看。</div><div class="mat-modal-loading">加载中…</div>';
+    box.classList.add('show');
+    try{
+      // 用 src 精确取「这个文件切出来的全部片段」，拼起来就是完整正文
+      const r = await fetch('/api/knowledge?src=' + encodeURIComponent(fname.replace(/^\d+_/, '')) + '&size=300',
+                            { headers: { 'X-Auth-Token': authToken } });
+      const d = await r.json();
+      const items = d.items || [];
+      const text = items.map(it => (it.content || '').replace(/^【[^】]*】\n?/, '')).join('\n\n');
+      body.querySelector('.mat-modal-loading').outerHTML =
+        `<div class="mat-modal-text">${esc(text.slice(0, 30000) || '（该文件未解析出文本内容）')}</div>`;
+    }catch(e){
+      const l = body.querySelector('.mat-modal-loading');
+      if (l) l.textContent = '内容加载失败';
+    }
+    return;
+  }
+
+  // PDF / 文本 / CSV：直接内嵌
+  const src = '/api/files/' + encodeURIComponent(fname) + '?inline=1&token=' + encodeURIComponent(authToken);
+  body.innerHTML = `<iframe class="mat-modal-frame" src="${src}"></iframe>`;
+  box.classList.add('show');
+}
+
+// 事件委托：资料列表里的「浏览」「下载」按钮
+$('#matList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.mat-view, .mat-dl-btn');
+  if (!btn) return;
+  const fname = btn.dataset.fname;
+  if (btn.classList.contains('mat-view')) previewMaterial(fname);
+  else downloadMaterial(fname);
+});
+
+// 关闭预览弹层
+$('#matModalClose').addEventListener('click', ()=>{
+  $('#matModal').classList.remove('show');
+  $('#matModalBody').innerHTML = ''; // 清空 iframe，避免继续占用
+});
+$('#matModal').addEventListener('click', (e)=>{
+  if (e.target.id === 'matModal') $('#matModalClose').click();
+});
+// ESC 关闭
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'Escape' && $('#matModal').classList.contains('show')) $('#matModalClose').click();
 });
 
 /* ---------- 启动 ---------- */

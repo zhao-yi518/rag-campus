@@ -612,9 +612,35 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
+/**
+ * 修复上传文件名的中文乱码。
+ *
+ * 问题根源：multipart/form-data 的 filename 字段按 RFC 7578 应当是 UTF-8，
+ * 但 busboy（multer 底层）默认用 latin1 解码，导致「招生简章.docx」的
+ * UTF-8 字节被逐个当成 Latin-1 字符，存进库里就变成「æçåç« .docx」。
+ *
+ * 判断依据：先做 latin1→utf8 还原，再检查还原结果里有没有 U+FFFD（无法解码的替换符）。
+ *   - 有替换符 → 说明原文本来就是合法字符串（如纯 ASCII 或已是中文），不做转换；
+ *   - 无替换符且能读出新内容 → 说明确实是编码错位，采用还原值。
+ * 这样对本来就正常的英文文件名不会造成二次破坏。
+ */
+function fixFilename(raw) {
+  if (!raw) return '';
+  // 已含中文（汉字区）说明解码正常，直接返回
+  if (/[\u4e00-\u9fa5]/.test(raw)) return raw;
+  try {
+    const decoded = Buffer.from(raw, 'latin1').toString('utf8');
+    // 还原后出现替换字符，说明不是编码问题，保持原值
+    if (decoded.includes('\uFFFD')) return raw;
+    return decoded;
+  } catch {
+    return raw;
+  }
+}
+
 /** 多格式文本抽取：PPTX(解压读XML)/DOCX/PDF/Excel/CSV/TXT 统一转纯文本 */
 async function extractText(file) {
-  const name = file.originalname.toLowerCase();
+  const name = fixFilename(file.originalname).toLowerCase();
   if (name.endsWith('.pdf')) {
     const pdfParse = require('pdf-parse');
     const data = await pdfParse(file.buffer);
@@ -802,7 +828,7 @@ app.get('/api/stats', (req, res) => {
 
 // --- 知识 CRUD ---
 app.get('/api/knowledge', requireAuth, (req, res) => {
-  const { q = '', category = '', page = 1, size = 20, hasFile = '' } = req.query;
+  const { q = '', category = '', page = 1, size = 20, hasFile = '', src = '' } = req.query;
   const offset = (Number(page) - 1) * Number(size);
 
   let where = 'WHERE 1=1';
@@ -817,6 +843,11 @@ app.get('/api/knowledge', requireAuth, (req, res) => {
   }
   if (hasFile === '1') {
     where += " AND source LIKE '上传：%'";
+  }
+  // 按来源文件名精确取该文件切出的全部片段（供「在线浏览」拼正文用）
+  if (src) {
+    where += ' AND source = ?';
+    params.push(`上传：${src}`);
   }
 
   const total = db.prepare(`SELECT COUNT(*) AS c FROM knowledge ${where}`).get(...params).c;
@@ -953,14 +984,16 @@ app.post('/api/upload', requireRole('admin', 'developer', 'teacher'), upload.sin
     }
 
     // 保存原文件：文件名 = 时间戳_原始名（下载时可还原），记录上传者
-    const safeOrig = req.file.originalname.replace(/[\\/:*?"<>|]/g, '_');
+    // originalname 经 fixFilename 解码，避免中文文件名入库后变乱码
+    const origName = fixFilename(req.file.originalname);
+    const safeOrig = origName.replace(/[\\/:*?"<>|]/g, '_');
     const storedName = Date.now() + '_' + safeOrig;
     fs.writeFileSync(path.join(UPLOAD_DIR, storedName), req.file.buffer);
     const fileUrl = '/api/files/' + encodeURIComponent(storedName);
     const ROLE_LABEL_CN = { student:'学生', teacher:'教师', admin:'管理员', developer:'开发者' };
     const uploaderLabel = (req.user.name || req.user.account) + '·' + ROLE_LABEL_CN[req.user.role];
 
-    const base = path.basename(req.file.originalname, path.extname(req.file.originalname));
+    const base = path.basename(origName, path.extname(origName));
     const insert = db.prepare(
       'INSERT INTO knowledge (title, content, category, source, uploader) VALUES (?,?,?,?,?)'
     );
@@ -969,7 +1002,7 @@ app.post('/api/upload', requireRole('admin', 'developer', 'teacher'), upload.sin
       for (const c of chunks) {
         const m = c.match(/^([^：:]{2,20})[：:](.*)$/);
         const title = m ? m[1] : c.slice(0, 16);
-        insert.run(title, c, guessCategory(c), `上传：${req.file.originalname}`, uploaderLabel);
+        insert.run(title, c, guessCategory(c), `上传：${origName}`, uploaderLabel);
       }
       db.exec('COMMIT');
     } catch (e) {
@@ -979,7 +1012,7 @@ app.post('/api/upload', requireRole('admin', 'developer', 'teacher'), upload.sin
 
     res.json({
       ok: true,
-      filename: req.file.originalname,
+      filename: origName,
       fileUrl,
       uploader: uploaderLabel,
       inserted: chunks.length,
@@ -1000,19 +1033,66 @@ const MIME = {
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   '.txt': 'text/plain', '.md': 'text/plain', '.csv': 'text/csv',
 };
-app.get('/api/files/:name', requireAuth, (req, res) => {
-  const orig = path.basename(decodeURIComponent(req.params.name)); // 原始文件名
-  // 磁盘文件格式：时间戳_原名 → 按后缀匹配找到唯一文件
+/**
+ * 能在浏览器里直接内嵌渲染、值得做「在线预览」的扩展名。
+ * Office 三件套（docx/pptx/xlsx）浏览器无法原生渲染，强行 inline 只会白屏或乱码，
+ * 所以它们一律走附件下载，由系统里的 Office/WPS 打开。
+ */
+const INLINE_OK = new Set(['.pdf', '.txt', '.md', '.csv']);
+/**
+ * 资料文件下载 / 在线预览。
+ *
+ * 为什么支持 ?token= 参数：
+ *   前端下载按钮如果用 <a href> 或 <iframe src> 直链，浏览器不会带自定义请求头
+ *   （X-Auth-Token 加不上去），必然 401。所以这里额外接受查询串里的 token，
+ *   仅用于这种「浏览器原生发起、无法设头」的场景。
+ *
+ * ?inline=1 时不加 Content-Disposition 的 attachment，让浏览器直接内嵌渲染
+ * （PDF / 图片 / 纯文本可在线看），Office 文件仍会走下载。
+ */
+app.get('/api/files/:name', (req, res) => {
+  // 鉴权：优先请求头，回退到查询参数（供 <a>/<iframe> 直链使用）
+  let user = getUser(req);
+  if (!user && req.query.token) {
+    const t = db.prepare('SELECT token, user_id FROM auth_tokens WHERE token = ?').get(String(req.query.token));
+    if (t) user = db.prepare('SELECT id, account, role, name FROM users WHERE id = ?').get(t.user_id) || null;
+  }
+  if (!user) return res.status(401).json({ error: '请先登录', needAuth: true });
+
+  // Express 已自动解码一次；只在残留 %XX 时才再解一次，避免中文名被二次解码破坏
+  let orig = path.basename(req.params.name);
+  if (/%[0-9A-Fa-f]{2}/.test(orig)) {
+    try { orig = decodeURIComponent(orig); } catch { /* 解码失败就用原值 */ }
+  }
+
+  // 磁盘文件格式：时间戳_原名 → 按后缀匹配找到对应文件
   let fp = null;
-  const suffix = '_' + orig;
-  const candidates = fs.readdirSync(UPLOAD_DIR).filter((f) => f.endsWith(suffix));
-  if (candidates.length) {
-    candidates.sort().reverse();
-    fp = path.join(UPLOAD_DIR, candidates[0]); // 最新一份
+  let onDisk = orig;
+  if (fs.existsSync(path.join(UPLOAD_DIR, orig))) {
+    fp = path.join(UPLOAD_DIR, orig); // 直接命中（前端已传磁盘名）
+  } else {
+    const suffix = '_' + orig;
+    const candidates = fs.readdirSync(UPLOAD_DIR).filter((f) => f.endsWith(suffix));
+    if (candidates.length) {
+      candidates.sort().reverse();
+      onDisk = candidates[0]; // 同名多份取最新
+      fp = path.join(UPLOAD_DIR, onDisk);
+    }
   }
   if (!fp || !fs.existsSync(fp)) return res.status(404).json({ error: '文件不存在' });
-  res.setHeader('Content-Type', MIME[path.extname(fp).toLowerCase()] || 'application/octet-stream');
-  res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(orig)}`);
+
+  const ext = path.extname(fp).toLowerCase();
+  const mime = MIME[ext] || 'application/octet-stream';
+  const inline = req.query.inline === '1';
+  const downloadName = orig.replace(/^\d+_/, ''); // 去掉时间戳前缀，还原用户看到的原始名
+
+  res.setHeader('Content-Type', mime);
+  res.setHeader(
+    'Content-Disposition',
+    `${inline && INLINE_OK.has(ext) ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(downloadName)}`
+  );
+  // 防中文名在某些浏览器下被截断，额外给一个 ASCII 兜底名
+  res.setHeader('Content-Length', fs.statSync(fp).size);
   fs.createReadStream(fp).pipe(res);
 });
 
